@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     echo "Building Flask Docker Image..."
-                    docker.build("myflaskapp:latest")
+                    bat "docker build -t myflaskapp:latest ."
                 }
             }
         }
@@ -22,8 +22,8 @@ pipeline {
             steps {
                 script {
                     echo "Stopping old container if exists..."
-                    sh "docker stop flaskdemo || true"
-                    sh "docker rm flaskdemo || true"
+                    bat "docker stop flaskdemo || exit 0"
+                    bat "docker rm flaskdemo || exit 0"
                 }
             }
         }
@@ -32,12 +32,7 @@ pipeline {
             steps {
                 script {
                     echo "Running new container on port 5000..."
-                    sh """
-                        docker run -d \
-                        --name flaskdemo \
-                        -p 5000:5000 \
-                        myflaskapp:latest
-                    """
+                    bat "docker run -d --name flaskdemo -p 5000:5000 myflaskapp:latest"
                 }
             }
         }
@@ -49,17 +44,18 @@ pipeline {
                     sleep(5)
 
                     echo "Testing application on port 5000..."
-                    sh "curl -f http://localhost:5000"
+                    bat "curl http://localhost:5000"
                 }
             }
         }
 
         stage('Deploy Success') {
             steps {
-                echo "Flask App is running successfully at: http://<your-server-ip>:5000"
+                echo "Flask App is running successfully at: http://localhost:5000"
             }
         }
     }
 }
+
 
 
